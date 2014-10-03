@@ -109,20 +109,20 @@ There are two types of pagination: Local and Remote.
 
 How to set your pagination type is covered in [Setting Configuration Values](#setting-configuration-values)
 
-Cases for Local Pagination:
+##### Cases for `Local` Pagination:
 
 * All records are stored in a local database (PouchDB, localState, etc).
 * You are using the FixtureAdapter.
 * You are querying a backend for records (possible with ActiveModelAdapter), but it does not support pagination, meaning it will return all records. 
 
-Cases for Remote Pagination:
+##### Cases for `Remote` Pagination:
 
 * You are querying a backend that supports pagination. A backend Rails app with Kaminari would fit here.
 * You are using an Ember Data adapter that mimics a pagination-supporting backend by implementing findQuery. 
 
 ### Setting Configuration Values
 
-Set your pagination type in your environment.js file. It must be either "local" or "remote"
+Set your pagination type in your environment.js file. It must be either `local` or `remote`
 
 You may also set a default perPage value here, although it is not required.
 
@@ -136,7 +136,7 @@ module.exports = function(environment) {
     // ....
 ```
 
-The old method of setting paginationType (instead of a nested pagination.type) still works.
+The old method of setting paginationType (instead of a nested pagination.type) still works for now.
 
 ### Using Kaminari in Rails
 
