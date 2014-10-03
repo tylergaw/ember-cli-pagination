@@ -8,7 +8,7 @@ cache:
     - node_modules
 
 install:
-  - npm install ember-cli -v $EMBER_CLI_VERSION
+  - npm install ember-cli@$EMBER_CLI_VERSION
   - npm install -g bower
   - npm install
   - bower install
