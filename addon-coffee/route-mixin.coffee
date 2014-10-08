@@ -1,8 +1,12 @@
 `import Ember from 'ember'`
 `import Util from 'ember-cli-pagination/util'`
+`import ArrayProxyPromiseMixin from 'ember-cli-pagination/array-proxy-promise-mixin'`
 
-PagedRemoteArray = Ember.ArrayProxy.extend
+PagedRemoteArray = Ember.ArrayProxy.extend ArrayProxyPromiseMixin, 
   page: 1
+
+  init: ->
+    @set 'promise', @fetchContent()
 
   fetchContent: ->
     Util.log "PagedRemoteArray#fetchContent"
@@ -24,12 +28,11 @@ PagedRemoteArray = Ember.ArrayProxy.extend
 
     res
 
-  content: (-> @fetchContent()).property("page")
-
   totalPagesBinding: "meta.total_pages"
 
   setPage: (page) ->
     @set 'page', page
+    @set 'promise', @fetchContent()
 
 c = Ember.Mixin.create
   findPaged: (name,params) ->
