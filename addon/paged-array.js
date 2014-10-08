@@ -7,18 +7,21 @@ export default Ember.ArrayProxy.extend({
   page: 1,
   perPage: 10,
 
-  arrangedContent: function() {
-    var page = this.get('page');
-    var perPage = this.get('perPage');
-
-    return DivideIntoPages.create({perPage: perPage}).objsForPage(page);
-  }.property("content.@each", "page", "perPage"),
-  totalPages: (function() {
+  divideObj: function() {
     return DivideIntoPages.create({
       perPage: this.get('perPage'),
       all: this.get('content')
-    }).totalPages();
-  }).property("content.@each", "perPage"),
+    });
+  },
+
+  arrangedContent: function() {
+    return this.divideObj().objsForPage(this.get('page'));
+  }.property("content.@each", "page", "perPage"),
+
+  totalPages: function() {
+    return this.divideObj().totalPages();
+  }.property("content.@each", "perPage"),
+  
   setPage: function(page) {
     Util.log("setPage " + page);
     return this.set('page', page);
