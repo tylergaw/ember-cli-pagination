@@ -5,6 +5,17 @@ import PagedLocalArray from 'ember-cli-pagination/local/paged-array';
 import Util from 'ember-cli-pagination/util';
 import toArray from '../../../helpers/to-array';
 
+var RunSet = Ember.Mixin.create({
+  runSet: function(k,v) {
+    var me = this;
+    Ember.run(function() {
+      me.set(k,v);
+    });
+  }
+});
+
+PagedRemoteArray = PagedRemoteArray.extend(RunSet);
+
 module("PagedRemoteArray");
 
 var Promise = Ember.RSVP.Promise;
@@ -64,22 +75,43 @@ asyncTest("page 2", function() {
   });
 });
 
-// asyncTest("change page", function() {
-//   var store = FakeStore.create({all: [1,2,3,4,5]});
+asyncTest("change page", function() {
+  var store = FakeStore.create({all: [1,2,3,4,5]});
 
-//   var paged = PagedRemoteArray.create({store: store, modelName: 'number', page: 1, perPage: 2});
+  var paged = PagedRemoteArray.create({store: store, modelName: 'number', page: 1, perPage: 2});
 
-//   paged.then(function() {
-//     equalArray(paged,[1,2]);
+  paged.then(function() {
+    QUnit.start();
+    equalArray(paged,[1,2]);
     
-//     paged.set("page",2);
+    paged.runSet("page",2);
 
-//     setTimeout(function() {
-//       paged.then(function() {
-//         equalArray(paged,[3,4]);
-//         QUnit.start();
-//       });
-//     },10);
-    
-//   });
-// });
+    paged.then(function() {
+      equalArray(paged,[3,4]);
+    });
+
+  });
+});
+
+asyncTest("double start", function() {
+  var makePromise = function(res) {
+    return new Promise(function(success) {
+      setTimeout(function() {
+        success(res);
+      },5);
+    });
+  };
+
+  var promise = makePromise(3);
+  promise.then(function(res) {
+    QUnit.start();
+    equal(res,3);
+
+    var promise2 = makePromise(5);
+    QUnit.stop();
+    promise2.then(function(res2) {
+      QUnit.start();
+      equal(res2,5);
+    });
+  });
+});
