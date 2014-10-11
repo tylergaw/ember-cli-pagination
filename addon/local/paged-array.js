@@ -26,17 +26,17 @@ export default Ember.ArrayProxy.extend({
     return this.set('page', page);
   },
 
-  then: function(f) {
+  then: function(success,failure) {
     var content = this.get('content');
     var me = this;
 
     if (content.then) {
       content.then(function() {
-        f(me);
-      });
+        success(me);
+      },failure);
     }
     else {
-      f(this);
+      success(this);
     }
   }
 });

@@ -25,6 +25,10 @@ paramTest("smoke", {page: 1, perPage: 2, content: [1,2,3,4,5]}, function(s) {
   equalArray(s,[3,4]);
 });
 
+paramTest("page out of range should give empty array", {page: 20, perPage: 2, content: [1,2,3,4,5]}, function(s) {
+  equalArray(s,[]);
+});
+
 paramTest("working then method", {page: 1, perPage: 2, content: [1,2,3,4,5]}, function(s) {
   equalArray(s,[1,2]);
 

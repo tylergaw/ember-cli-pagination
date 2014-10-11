@@ -115,3 +115,24 @@ asyncTest("double start", function() {
     });
   });
 });
+
+var ErrorStore = Ember.Object.extend({
+  find: function() {
+    return new Promise(function(success,failure) {
+      failure("Network Error");
+    });
+  }
+});
+
+asyncTest("remote error", function() {
+  var store = ErrorStore.create({all: [1,2,3,4,5]});
+
+  var paged = PagedRemoteArray.create({store: store, modelName: 'number', page: 1, perPage: 2});
+
+  paged.then(function() {
+    throw "should not be here";
+  }, function() {
+    equalArray(paged,[]);
+    QUnit.start();
+  });
+});
