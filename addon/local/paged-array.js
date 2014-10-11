@@ -24,5 +24,19 @@ export default Ember.ArrayProxy.extend({
   setPage: function(page) {
     Util.log("setPage " + page);
     return this.set('page', page);
+  },
+
+  then: function(f) {
+    var content = this.get('content');
+    var me = this;
+
+    if (content.then) {
+      content.then(function() {
+        f(me);
+      });
+    }
+    else {
+      f(this);
+    }
   }
 });
