@@ -1,8 +1,9 @@
 # Primitives
 
-* [`page-numbers` Component](#`page-numbers` Component]
-* [`pagedArray` Computed Helper](#`pagedArray` Computed Helper]
-* [PagedRemoteArray](#PagedRemoteArray]
+* [`page-numbers` Component](#`page-numbers` Component)
+* [pagedArrayComputedHelper](#pagedArray-computed-helper)
+* [PagedRemoteArray](#PagedRemoteArray)
+* [PagedRemoteArray](#pagedremotearray)
 * [Google](http://google.com)
 * [Including](#stuff-here)
 
