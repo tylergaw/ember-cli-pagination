@@ -1,6 +1,7 @@
 # Primitives
 
-* [`page-numbers` Component](#`page-numbers` Component)
+* [`page-numbers` Component](#`page-numbers`-component)
+* [`page-numbers` Component](#page-numbers-component)
 * [pagedArrayComputedHelper](#pagedArray-computed-helper)
 * [PagedRemoteArray](#PagedRemoteArray)
 * [PagedRemoteArray](#pagedremotearray)
