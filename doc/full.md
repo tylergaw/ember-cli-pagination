@@ -1,12 +1,8 @@
 # Primitives
 
-* [`page-numbers` Component](#`page-numbers`-component)
 * [`page-numbers` Component](#page-numbers-component)
-* [pagedArrayComputedHelper](#pagedArray-computed-helper)
-* [PagedRemoteArray](#PagedRemoteArray)
+* [`pagedArray` Computed Helper](#pagedarray-computed-helper)
 * [PagedRemoteArray](#pagedremotearray)
-* [Google](http://google.com)
-* [Including](#stuff-here)
 
 ## `page-numbers` Component
 
@@ -149,10 +145,6 @@ Ember.Route.extend({
   }
 });
 ```
-
-### Stuff Here
-
-Wheee
 
 ### Updating
 
