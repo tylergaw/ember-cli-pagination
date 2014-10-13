@@ -37,7 +37,6 @@ class Entry
       Dir["#{dir}/*.md"].map { |x| new(path: x) }.select { |x| x.body.present? }
     end
     fattr(:primitives) do
-      
       get(:primitives)
     end
 
@@ -46,8 +45,8 @@ class Entry
       get(:scenarios).sort_by { |x| sort_order.index(x.dash_name) || (raise "nothing for #{x.dash_name}") }
     end
 
-    def all
-      primitives + scenarios
+    fattr(:others) do
+      get(:other)
     end
   end
 end
@@ -56,10 +55,12 @@ class TableOfContents
   include FromHash
   fattr(:primitives) { Entry.primitives }
   fattr(:scenarios) { Entry.scenarios }
+  fattr(:others) { Entry.others }
 
   def to_s
     prim = primitives.map { |x| "* #{x.link}" }.join("\n")
     scen = scenarios.map { |x| "* #{x.link}" }.join("\n")
+    other = others.map { |x| "* #{x.link}" }.join("\n")
 
     res = []
     res << "# Table of Contents"
@@ -67,6 +68,8 @@ class TableOfContents
     res << scen
     res << '#### Primitives'
     res << prim
+    res << '#### Other'
+    res << other
     
     res.join("\n\n")
   end
@@ -76,6 +79,7 @@ class Body
   include FromHash
   fattr(:primitives) { Entry.primitives }
   fattr(:scenarios) { Entry.scenarios }
+  fattr(:others) { Entry.others }
 
   def to_s
     rule = "\n\n--------------\n\n"
@@ -85,6 +89,8 @@ class Body
     res << scenarios.join(rule)
     res << "# Primitives"
     res << primitives.join(rule)
+    res << "# Other"
+    res << others.join(rule)
 
     res.join("\n\n")
   end
