@@ -37,11 +37,13 @@ class Entry
       Dir["#{dir}/*.md"].map { |x| new(path: x) }.select { |x| x.body.present? }
     end
     fattr(:primitives) do
+      
       get(:primitives)
     end
 
     fattr(:scenarios) do
-      get(:scenarios)
+      sort_order = ["local-store","remote-paginated-api","remote-unpaginated-api","paginating-a-filtered-list"]
+      get(:scenarios).sort_by { |x| sort_order.index(x.dash_name) || (raise "nothing for #{x.dash_name}") }
     end
 
     def all
