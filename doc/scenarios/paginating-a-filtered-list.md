@@ -40,6 +40,6 @@ Ember.ArrayController.extend({
 
 If you don't want to have query params, you may leave them out, along with the 3 bindings. The rest will still work. 
 
-### Notes
+#### Notes
 
 * There is no need to touch the route in this scenario.
