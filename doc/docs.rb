@@ -63,7 +63,7 @@ class TableOfContents
     other = others.map { |x| "* #{x.link}" }.join("\n")
 
     res = []
-    res << "# Table of Contents"
+    res << "# Usage"
     res << '#### Scenarios'
     res << scen
     res << '#### Primitives'
