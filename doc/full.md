@@ -24,7 +24,7 @@ This scenario applies if:
 * Wish to display one page of records at a time.
 * Want to have a page query parameter (optional).
 
-```
+```javascript
 import Ember from 'ember';
 import pagedArray from 'ember-cli-pagination/computed/paged-array';
 
@@ -44,7 +44,7 @@ Ember.ArrayController.extend({
 });
 ```
 
-```
+```handlebars
 {{#each pagedContent}}
   {{! your app's display logic}}
 {{/each}}
@@ -69,7 +69,7 @@ This scenario applies if:
 * Wish to display one page of records at a time.
 * Want to have a page query parameter (optional).
 
-```
+```javascript
 import Ember from 'ember';
 import RouteMixin from 'ember-cli-pagination/remote/route-mixin';
 
@@ -83,7 +83,7 @@ export default Ember.Route.extend(RouteMixin, {
 });
 ```
 
-```
+```javascript
 import Ember from 'ember';
 
 Ember.ArrayController.extend({
@@ -98,7 +98,7 @@ Ember.ArrayController.extend({
 });
 ```
 
-```
+```handlebars
 {{#each this}}
   {{! your app's display logic}}
 {{/each}}
@@ -136,7 +136,7 @@ This scenario applies if:
 * Wish to display one page of records at a time.
 * Want to have a page query parameter (optional).
 
-```
+```javascript
 import Ember from 'ember';
 import pagedArray from 'ember-cli-pagination/computed/paged-array';
 
@@ -159,7 +159,7 @@ Ember.ArrayController.extend({
 });
 ```
 
-```
+```handlebars
 {{#each pagedContent}}
   {{! your app's display logic}}
 {{/each}}
@@ -196,13 +196,13 @@ There are two ways to use this component.
 
 This is the easier and most common way.
 
-```
+```javascript
 Ember.ArrayController.extend({
   pagedContent: pagedArray('content')
 });
 ```
 
-```
+```handlebars
 {{#each pagedContent}}
   {{! your app's display logic}}
 {{/each}}
@@ -219,14 +219,14 @@ See the pagedArray doc for more information on the pagedArray helper.
 
 #### Bind `currentPage` and `totalPages` to your properties directly
 
-```
+```javascript
 Ember.Object.extend({
   page: 1,
   totalPages: 10
 });
 ```
 
-```
+```handlebars
 {{page-numbers currentPage=page totalPages=totalPages}}
 ``` 
 
@@ -265,7 +265,7 @@ A PagedArray has several properties you may find useful:
 * `perPage`: how many records to have on each page (Default: 10)
 * `totalPages`: the total number of pages
 
-```
+```javascript
 import pagedArray from 'ember-cli-pagination/computed/paged-array';
 
 Ember.Object.extend({
@@ -304,7 +304,7 @@ Once the data is loaded, you may iterate over a PagedArray as you would a normal
 
 The object acts as a promise, with a working `then` method.
 
-```
+```javascript
 import PagedArray from 'ember-cli-pagination/local/paged-array';
 
 var all = Ember.A([1,2,3,4,5]);
@@ -330,7 +330,7 @@ You may bind PagedArray#page like any property.
 
 To update records when a page property changes:
 
-```
+```javascript
 Ember.ArrayController.extend({
   // the content property represents a paged array
 
@@ -355,7 +355,7 @@ Once the data is loaded, you may iterate over a PagedRemoteArray as you would a 
 
 The object acts as a promise, with a working `then` method. If you are manually iterating over records outside of the standard workflow, make sure to use `then` with standard promise semantics, just as you would an object returned from a normal `store.find` call. 
 
-```
+```javascript
 import PagedRemoteArray from 'ember-cli-pagination/remote/paged-remote-array';
 
 Ember.Route.extend({
@@ -375,7 +375,7 @@ Ember.Route.extend({
 
 A PagedRecordArray will make a new remote call to update records when the page property is changed. Again, standard promise usage applies here. 
 
-```
+```javascript
 // pagedArray represents a PagedRemoteArray, already created and loaded with data, with page=1
 // var pagedArray = ....
 
@@ -396,7 +396,7 @@ You may bind PagedRemoteArray#page like any property.
 
 To update records when a page property changes:
 
-```
+```javascript
 Ember.ArrayController.extend({
   // the content property represents a paged array
 
