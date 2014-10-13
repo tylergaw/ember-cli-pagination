@@ -7,7 +7,7 @@ This scenario applies if:
 * Wish to display one page of records at a time.
 * Want to have a page query parameter (optional).
 
-```
+```javascript
 import Ember from 'ember';
 import pagedArray from 'ember-cli-pagination/computed/paged-array';
 
@@ -30,7 +30,7 @@ Ember.ArrayController.extend({
 });
 ```
 
-```
+```handlebars
 {{#each pagedContent}}
   {{! your app's display logic}}
 {{/each}}

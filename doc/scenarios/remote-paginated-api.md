@@ -6,7 +6,7 @@ This scenario applies if:
 * Wish to display one page of records at a time.
 * Want to have a page query parameter (optional).
 
-```
+```javascript
 import Ember from 'ember';
 import RouteMixin from 'ember-cli-pagination/remote/route-mixin';
 
@@ -20,7 +20,7 @@ export default Ember.Route.extend(RouteMixin, {
 });
 ```
 
-```
+```javascript
 import Ember from 'ember';
 
 Ember.ArrayController.extend({
@@ -35,7 +35,7 @@ Ember.ArrayController.extend({
 });
 ```
 
-```
+```handlebars
 {{#each this}}
   {{! your app's display logic}}
 {{/each}}
