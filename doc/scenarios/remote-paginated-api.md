@@ -47,4 +47,5 @@ If you don't want to have query params, you may leave them out, along with the 3
 
 #### Notes
 
-* There used to be a controller mixin, and they may return in the future. For now, they were too much overhead, and they were too much magic. If you think getting rid of the mixins is a mistake, please open an issue and let me know. 
+* There used to be a controller mixin, and they may return in the future. For now, it was too much overhead, and it was too much magic. If you think getting rid of the mixin is a mistake, please open an issue and let me know. 
+* Related: [Setup a Paginated Rails API](#setup-paginated-rails-api)
