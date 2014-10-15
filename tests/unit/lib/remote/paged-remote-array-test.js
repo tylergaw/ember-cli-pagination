@@ -168,3 +168,29 @@ asyncTest("notifies observer", function() {
     });
   });
 });
+
+var MockStore = Ember.Object.extend({
+  findArgs: [],
+
+  find: function(modelName,params) {
+    var me = this;
+    return new Promise(function(success,failure) {
+      me.get("findArgs").pushObject({modelName: modelName, params: params});
+      success([]);
+    });
+  }
+});
+
+asyncTest("takes otherParams", function() {
+  var store = MockStore.create();
+
+  var paged = PagedRemoteArray.create({store: store, modelName: 'number', page: 1, perPage: 2, otherParams: {name: "Adam"}});
+  paged.then(function() {
+    QUnit.start();
+
+    var findArgs = store.get('findArgs');
+    equal(findArgs.length,1);
+    equal(findArgs[0].params.page,1);
+    equal(findArgs[0].params.name,"Adam");
+  });
+});
