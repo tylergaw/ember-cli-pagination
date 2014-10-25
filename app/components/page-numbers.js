@@ -1,11 +1,8 @@
 import Ember from 'ember';
 import Util from 'ember-cli-pagination/util';
-import TruncatePages from 'ember-cli-pagination/truncate-pages'
+import TruncatePages from 'ember-cli-pagination/truncate-pages';
 
-export default Ember.Component.extend({
-  currentPageBinding: "content.page",
-  totalPagesBinding: "content.totalPages",
-
+var PageItems = Ember.Object.extend({
   pageItemsAll: function() {
     var currentPage = Number(this.get("currentPage"));
     var totalPages = Number(this.get("totalPages"));
@@ -37,7 +34,27 @@ export default Ember.Component.extend({
   }.property('currentPage','totalPages'),
 
   pageItems: function() {
-    return this.get('pageItemsTruncated');
+    if (this.get('truncatePages')) {
+      return this.get('pageItemsTruncated');
+    }
+    else {
+      return this.get('pageItemsAll');
+    }
+  }.property('currentPage','totalPages','truncatePages')
+});
+
+export default Ember.Component.extend({
+  currentPageBinding: "content.page",
+  totalPagesBinding: "content.totalPages",
+  truncatePages: true,
+
+  pageItems: function() {
+    var currentPage = parseInt(this.get('currentPage'));
+    var totalPages = parseInt(this.get('totalPages'));
+    var truncatePages = this.get('truncatePages');
+
+    var p = PageItems.create({currentPage: currentPage, totalPages: totalPages, truncatePages: truncatePages});
+    return p.get('pageItems');
   }.property('currentPage','totalPages'),
 
   canStepForward: (function() {
