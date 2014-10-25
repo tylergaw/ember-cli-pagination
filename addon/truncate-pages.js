@@ -17,6 +17,7 @@ export default Ember.Object.extend({
     var before = this.get('numPagesToShowBefore');
     var after = this.get('numPagesToShowAfter');
     var currentPage = this.get('currentPage');
+    var totalPages = this.get('totalPages');
 
     var possiblePage;
 
@@ -34,6 +35,16 @@ export default Ember.Object.extend({
       if (this.isValidPage(possiblePage)) {
         res.push(possiblePage);
       }
+    }
+
+    if (res.length > 0 && res[res.length-1] !== totalPages) {
+      res.push(totalPages);
+    }
+
+    if (res.length > 0 && res[0] !== 1) {
+      var rest = res;
+      res = [1];
+      res = res.concat(rest);
     }
 
     return res;

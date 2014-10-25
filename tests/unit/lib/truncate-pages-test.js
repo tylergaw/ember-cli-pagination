@@ -25,6 +25,10 @@ paramTest("smoke", {currentPage: 2, totalPages: 4}, function(s) {
   deepEqual(s.get('pagesToShow'),[1,2,3,4]);
 });
 
-paramTest("smoke", {currentPage: 2, totalPages: 4, numPagesToShowAfter: 1}, function(s) {
-  deepEqual(s.get('pagesToShow'),[1,2,3]);
+paramTest("truncate after pages, always shows last page", {currentPage: 2, totalPages: 10, numPagesToShowAfter: 1}, function(s) {
+  deepEqual(s.get('pagesToShow'),[1,2,3,10]);
+});
+
+paramTest("smoke", {currentPage: 4, totalPages: 5, numPagesToShowBefore: 1}, function(s) {
+  deepEqual(s.get('pagesToShow'),[1,3,4,5]);
 });

@@ -95,7 +95,7 @@ paramTest("truncation", {currentPage: 2, totalPages: 10}, function(s) {
     return obj.page;
   });
 
-  deepEqual(pages,[1,2,3,4,5,6,7]);
+  deepEqual(pages,[1,2,3,4,5,6,7,10]);
 });
 
 paramTest("truncation ops", {currentPage: 2, totalPages: 10, numPagesToShowAfter: 1}, function(s) {
@@ -103,5 +103,5 @@ paramTest("truncation ops", {currentPage: 2, totalPages: 10, numPagesToShowAfter
     return obj.page;
   });
 
-  deepEqual(pages,[1,2,3]);
+  deepEqual(pages,[1,2,3,10]);
 });
