@@ -32,7 +32,7 @@ export default Ember.ArrayProxy.extend(ArrayProxyPromiseMixin, {
 
     var otherOps = this.get('otherParams') || {};
     for (var key in otherOps) {
-      console.debug("otherOps key " + key);
+      Util.log("otherOps key " + key);
       var val = otherOps[key];
       ops[key] = val;
     }

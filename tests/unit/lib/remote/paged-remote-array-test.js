@@ -5,6 +5,7 @@ import PagedLocalArray from 'ember-cli-pagination/local/paged-array';
 import Util from 'ember-cli-pagination/util';
 import toArray from '../../../helpers/to-array';
 import equalArray from '../../../helpers/equal-array';
+import MockStore from '../../../helpers/mock-store';
 
 var RunSet = Ember.Mixin.create({
   runSet: function(k,v) {
@@ -45,7 +46,6 @@ var FakeStore = Ember.Object.extend({
     });
   }
 });
-
 
 asyncTest("page 1", function() {
   var store = FakeStore.create({all: [1,2,3,4,5]});
@@ -167,18 +167,6 @@ asyncTest("notifies observer", function() {
       equal(observer.get('arrayDidChangeCount'),2);
     });
   });
-});
-
-var MockStore = Ember.Object.extend({
-  findArgs: [],
-
-  find: function(modelName,params) {
-    var me = this;
-    return new Promise(function(success,failure) {
-      me.get("findArgs").pushObject({modelName: modelName, params: params});
-      success([]);
-    });
-  }
 });
 
 asyncTest("takes otherParams", function() {

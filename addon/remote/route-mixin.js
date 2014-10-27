@@ -1,26 +1,6 @@
 import Ember from 'ember';
 import PagedRemoteArray from './paged-remote-array';
-
-var keysOtherThan = function(params,excludeKeys) {
-  var res = [];
-  for (var key in params) {
-    if (!excludeKeys.contains(key)) {
-      res.push(key);
-    }
-  }
-  return res;
-};
-
-var paramsOtherThan = function(params,excludeKeys) {
-  var res = {};
-  var keys = keysOtherThan(params,excludeKeys);
-  for(var i=0;i<keys.length;i++) {
-    var key = keys[i];
-    var val = params[key];
-    res[key] = val;
-  }
-  return res;
-};
+import Util from '../util';
 
 export default Ember.Mixin.create({
   perPage: 10,
@@ -34,7 +14,7 @@ export default Ember.Mixin.create({
       store: this.store
     };
 
-    var otherOps = paramsOtherThan(params,["page","perPage"]);
+    var otherOps = Util.paramsOtherThan(params,["page","perPage"]);
     mainOps.otherParams = otherOps;
 
     return PagedRemoteArray.create(mainOps);
