@@ -1,6 +1,6 @@
 import Ember from 'ember';
 import { test } from 'ember-qunit';
-import TruncatePages from 'ember-cli-pagination/truncate-pages';
+import TruncatePages from 'ember-cli-pagination/lib/truncate-pages';
 
 module("TruncatePages");
 
