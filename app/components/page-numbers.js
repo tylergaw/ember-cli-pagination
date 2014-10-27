@@ -32,10 +32,10 @@ var PageItems = Ember.Object.extend({
     return pages.map(function(page) {
       return {
         page: page,
-        current: (currentPage == page)
+        current: (currentPage === page)
       }
     });
-  }.property('currentPage','totalPages'),
+  }.property('currentPage','totalPages','numPagesToShowBefore','numPagesToShowAfter'),
 
   pageItems: function() {
     if (this.get('truncatePages')) {
@@ -44,7 +44,7 @@ var PageItems = Ember.Object.extend({
     else {
       return this.get('pageItemsAll');
     }
-  }.property('currentPage','totalPages','truncatePages')
+  }.property('currentPage','totalPages','truncatePages','numPagesToShowBefore','numPagesToShowAfter')
 });
 
 export default Ember.Component.extend({
@@ -55,18 +55,18 @@ export default Ember.Component.extend({
   numPagesToShowBefore: 5,
   numPagesToShowAfter: 5,
 
-  pageItems: function() {
-    var currentPage = parseInt(this.get('currentPage'));
-    var totalPages = parseInt(this.get('totalPages'));
-    var truncatePages = this.get('truncatePages');
+  pageItemsObj: function() {
+    return PageItems.create({
+      parent: this,
+      currentPageBinding: "parent.currentPage",
+      totalPagesBinding: "parent.totalPages",
+      truncatePagesBinding: "parent.truncatePages",
+      numPagesToShowBeforeBinding: "parent.numPagesToShowBefore",
+      numPagesToShowAfterBinding: "parent.numPagesToShowAfter"
+    });
+  }.property(),
 
-    var before = this.get('numPagesToShowBefore');
-    var after = this.get('numPagesToShowAfter');
-
-    var p = PageItems.create({currentPage: currentPage, totalPages: totalPages, truncatePages: truncatePages,
-                              numPagesToShowBefore: before, numPagesToShowAfter: after});
-    return p.get('pageItems');
-  }.property('currentPage','totalPages'),
+  pageItemsBinding: "pageItemsObj.pageItems",
 
   canStepForward: (function() {
     var page = Number(this.get("currentPage"));
