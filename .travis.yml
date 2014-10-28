@@ -17,6 +17,7 @@ script:
   - npm test
 
 env:
+  - EMBER_CLI_VERSION=stefanpenner/ember-cli
   - EMBER_CLI_VERSION=latest
   - EMBER_CLI_VERSION=0.0.46
   - EMBER_CLI_VERSION=0.0.44
