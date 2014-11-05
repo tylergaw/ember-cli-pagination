@@ -182,3 +182,25 @@ asyncTest("takes otherParams", function() {
     equal(findArgs[0].params.name,"Adam");
   });
 });
+
+test("paramsForBackend", function() {
+  var store = MockStore.create();
+  var paged = PagedRemoteArray.create({store: store, modelName: 'number', page: 1, perPage: 2});
+  var res = paged.get('paramsForBackend');
+  deepEqual(res,{page: 1, per_page: 2});
+});
+
+test("paramsForBackend with otherParams", function() {
+  var store = MockStore.create();
+  var paged = PagedRemoteArray.create({store: store, modelName: 'number', page: 1, perPage: 2, otherParams: {name: "Adam"}});
+  var res = paged.get('paramsForBackend');
+  deepEqual(res,{page: 1, per_page: 2, name: "Adam"});
+});
+
+test("paramsForBackend with param mapping", function() {
+  var store = MockStore.create();
+  var paged = PagedRemoteArray.create({store: store, modelName: 'number', page: 1, perPage: 2});
+  paged.set('paramMapping', {page: "currentPage"});
+  var res = paged.get('paramsForBackend');
+  deepEqual(res,{currentPage: 1, per_page: 2});
+});
