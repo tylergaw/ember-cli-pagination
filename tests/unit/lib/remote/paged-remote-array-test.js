@@ -6,6 +6,7 @@ import Util from 'ember-cli-pagination/util';
 import toArray from '../../../helpers/to-array';
 import equalArray from '../../../helpers/equal-array';
 import MockStore from '../../../helpers/mock-store';
+import DivideIntoPages from 'ember-cli-pagination/divide-into-pages';
 
 var RunSet = Ember.Mixin.create({
   runSet: function(k,v) {
@@ -40,6 +41,11 @@ var FakeStore = Ember.Object.extend({
     var all = this.get('all');
     var paged = PagedLocalArray.create({page: params.page, perPage: params.per_page, content: all});
     var res = toArray(paged);
+
+    var totalPages = DivideIntoPages.create({all: all, perPage: params.per_page}).totalPages();
+    var key = this.get('totalPagesField') || 'total_pages';
+    res.meta = {};
+    res.meta[key] = totalPages;
 
     return new Promise(function(success,failure) {
       success(res);
@@ -203,4 +209,30 @@ test("paramsForBackend with param mapping", function() {
   paged.set('paramMapping', {page: "currentPage"});
   var res = paged.get('paramsForBackend');
   deepEqual(res,{currentPage: 1, per_page: 2});
+});
+
+
+
+
+asyncTest("basic meta", function() {
+  var store = FakeStore.create({all: [1,2,3,4,5]});
+  var paged = PagedRemoteArray.create({store: store, modelName: 'number', page: 1, perPage: 2});
+
+  paged.then(function() {
+    var meta = paged.get('meta');
+    equal(meta.total_pages,3);
+    QUnit.start();
+  });
+});
+
+asyncTest("meta with num_pages", function() {
+  var store = FakeStore.create({all: [1,2,3,4,5], totalPagesField: 'num_pages'});
+  var paged = PagedRemoteArray.create({store: store, modelName: 'number', page: 1, perPage: 2});
+  paged.set('paramMapping',{total_pages: 'num_pages'});
+
+  paged.then(function() {
+    var meta = paged.get('meta');
+    equal(meta.total_pages,3);
+    QUnit.start();
+  });
 });

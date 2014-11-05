@@ -61,7 +61,15 @@ export default Ember.ArrayProxy.extend(ArrayProxyPromiseMixin, {
     res.then(function(rows) {
       Util.log("PagedRemoteArray#fetchContent in res.then " + rows);
       var newMeta = {};
-      for (var i in rows.meta) { newMeta[i] = rows.meta[i]; }      
+      var totalPagesField = me.get('paramMapping').total_pages;
+      if (rows.meta) {
+        for (var k in rows.meta) { 
+          newMeta[k] = rows.meta[k]; 
+          if (totalPagesField && totalPagesField === k) {
+            newMeta['total_pages'] = rows.meta[k];
+          }
+        }      
+      }
       return me.set("meta", newMeta);
     }, function(error) {
       Util.log("PagedRemoteArray#fetchContent error " + error);
