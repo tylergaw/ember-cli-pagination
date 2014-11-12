@@ -2,7 +2,7 @@ import Ember from 'ember';
 
 export default Ember.Object.extend({
   numPagesToShow: 10,
-  showFL: true,
+  showFL: false,
   currentPage: null,
   totalPages: null,
 
@@ -77,5 +77,5 @@ export default Ember.Object.extend({
     
     return res;
 
-  }.property("numPagesToShowBefore","numPagesToShowAfter","currentPage","totalPages")
+  }.property("numPagesToShow","currentPage","totalPages")
 });
