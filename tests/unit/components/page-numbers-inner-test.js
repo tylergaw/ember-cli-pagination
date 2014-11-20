@@ -126,7 +126,7 @@ paramTest("pageClicked sends default event", {content: makePagedArray([1,2,3,4,5
   Ember.run(function() {
     s.send('pageClicked',2);
   });
-
+  equal(s.get('currentPage'),1);
   equal(actionCounter,1);
   equal(clickedPage,2);
 });
@@ -148,7 +148,7 @@ paramTest("incrementPage sends default event", {content: makePagedArray([1,2,3,4
   Ember.run(function() {
     s.send('incrementPage',1);
   });
-
+  equal(s.get('currentPage'),1);
   equal(actionCounter,1);
   equal(clickedPage,2);
 });
