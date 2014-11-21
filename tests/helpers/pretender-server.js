@@ -13,7 +13,7 @@ export default function() {
       request.queryParams.per_page = request.queryParams.per_page || (config.pagination || {}).perPage;
 
       var paginationType = "remote";
-      if (request.queryParams.page === 'all' || !request.queryParams.page) {
+      if (!request.queryParams.page) {
         paginationType = "local";
       }
 

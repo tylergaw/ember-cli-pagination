@@ -24,7 +24,7 @@ var f = function() {
   });
 
   Ember.Test.registerAsyncHelper('hasTodos', function(app, l, context) {
-    equal(find("table tr.todo").length, l);
+    equal(find(".todo").length, l);
   });
 
   Ember.Test.registerAsyncHelper('hasPages', function(app, l, context) {

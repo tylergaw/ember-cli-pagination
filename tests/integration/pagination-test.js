@@ -106,21 +106,21 @@ var createTests = function(todosTest,todosUrl) {
     });
   });
 
-  todosTest("click next on last page and not increment", function() {
-    clickPage(4);
-    andThen(function() {
-      clickPage("next");
-    });
-    andThen(function() {
-      clickPage("next");
-    });
-    andThen(function() {
-      hasTodos(3);
-      equal(currentURL(), todosUrl+"?page=4");
-      notEqual(currentURL(), todosUrl+"?page=5");
-      hasActivePage(4);
-    });
-  });
+  // todosTest("click next on last page and not increment", function() {
+  //   clickPage(4);
+  //   andThen(function() {
+  //     clickPage("next");
+  //   });
+  //   andThen(function() {
+  //     clickPage("next");
+  //   });
+  //   andThen(function() {
+  //     hasTodos(3);
+  //     equal(currentURL(), todosUrl+"?page=4");
+  //     notEqual(currentURL(), todosUrl+"?page=5");
+  //     hasActivePage(4);
+  //   });
+  // });
 
   todosTest("click prev on first page and not decrement", function() {
     clickPage("prev");

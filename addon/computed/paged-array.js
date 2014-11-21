@@ -11,8 +11,8 @@ function makeLocal(contentProperty,ops) {
 
     var getVal = function(key,val) {
       if (key.match(/Binding$/)) {
-        return "parent."+val;
-        //return Ember.Binding.oneWay("parent."+val);
+        //return "parent."+val;
+        return Ember.Binding.oneWay("parent."+val);
       }
       else {
         return val;

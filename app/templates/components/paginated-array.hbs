@@ -1,0 +1,7 @@
+{{#each obj in pagedContent}}
+  {{#with obj}}
+    {{yield}}
+  {{/with}}
+{{/each}}
+
+{{page-numbers-inner content=pagedContent action="pageClicked"}}

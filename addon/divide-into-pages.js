@@ -3,6 +3,9 @@ import Ember from 'ember';
 export default Ember.Object.extend({
   objsForPage: function(page) {
     var range = this.range(page);
+    if (!this.get('all')) {
+      throw "no all given in DivideIntoPages";
+    }
     return this.get('all').slice(range.start,range.end+1);
   },
 
