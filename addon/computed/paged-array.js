@@ -4,6 +4,8 @@ import PagedInfiniteArray from 'ember-cli-pagination/infinite/paged-infinite-arr
 
 function makeLocal(contentProperty,ops) {
   return Ember.computed(contentProperty+".@each",function() {
+    // console.log(this.actions);
+    // console.log("abc");
     var pagedOps = {content: this.get(contentProperty)};
     pagedOps.parent = this;
 

@@ -4,6 +4,30 @@ import PagedArray from 'ember-cli-pagination/local/paged-array';
 
 moduleForComponent("page-numbers-inner");
 
+var makeContainingObject = function(subject) {
+  var containingObject = {
+    doThing: function(n) {
+      this.actionCounter++;
+      this.clickedPage = n;
+    },
+
+    handleInvalidPageAction: function(n) {
+      this.actionCounter++;
+      this.invalidPageEvent = n;
+    },
+
+    actionCounter: 0,
+    clickedPage: null,
+    invalidPageEvent: null
+  };
+
+  subject.set('targetObject',containingObject);
+  subject.set('action','doThing');
+  subject.set('invalidPageAction','handleInvalidPageAction');
+
+  return containingObject;
+};
+
 var paramTest = function(name,ops,f) {
   test(name, function() {
     var subject = this.subject();
@@ -14,6 +38,8 @@ var paramTest = function(name,ops,f) {
           subject.set(key,value);
       });
     });
+
+    ops.containingObject = makeContainingObject(subject);
 
     f.call(this,subject,ops);
   });
@@ -72,6 +98,14 @@ paramTest("create with content - changing page changes content value", {content:
   equal(s.get('currentPage'),2);
 });
 
+paramTest("create with content - changing component page doesn't change array page", {content: makePagedArray([1,2,3,4,5])}, function(s,ops) {
+  equal(s.get('totalPages'),3);
+  Ember.run(function() {
+    s.set('currentPage',2);
+  });
+  equal(ops.content.get('page'),1);
+});
+
 paramTest("template smoke", {content: makePagedArray([1,2,3,4,5])}, function(s) {
   equal(this.$().find(".page-number").length,3);
   equal(this.$().find(".prev.disabled").length,1);
@@ -110,87 +144,39 @@ paramTest("truncation", {currentPage: 2, totalPages: 10, numPagesToShow: 5}, fun
 });
 
 paramTest("pageClicked sends default event", {content: makePagedArray([1,2,3,4,5])}, function(s,ops) {
-  var actionCounter = 0;
-  var clickedPage = null;
-  var containingObject = {
-    doThing: function(n) {
-      actionCounter++;
-      clickedPage = n;
-    }
-  };
-
-  s.set('targetObject',containingObject);
-  s.set('action','doThing');
-
   equal(s.get('totalPages'),3);
   Ember.run(function() {
     s.send('pageClicked',2);
   });
   equal(s.get('currentPage'),1);
-  equal(actionCounter,1);
-  equal(clickedPage,2);
+  equal(ops.containingObject.actionCounter,1);
+  equal(ops.containingObject.clickedPage,2);
 });
 
 paramTest("incrementPage sends default event", {content: makePagedArray([1,2,3,4,5])}, function(s,ops) {
-  var actionCounter = 0;
-  var clickedPage = null;
-  var containingObject = {
-    doThing: function(n) {
-      actionCounter++;
-      clickedPage = n;
-    }
-  };
-
-  s.set('targetObject',containingObject);
-  s.set('action','doThing');
-
   equal(s.get('totalPages'),3);
   Ember.run(function() {
     s.send('incrementPage',1);
   });
   equal(s.get('currentPage'),1);
-  equal(actionCounter,1);
-  equal(clickedPage,2);
+  equal(ops.containingObject.actionCounter,1);
+  equal(ops.containingObject.clickedPage,2);
 });
 
 paramTest("invalid incrementPage does not send default event", {content: makePagedArray([1,2,3,4,5])}, function(s,ops) {
-  var actionCounter = 0;
-  var clickedPage = null;
-  var containingObject = {
-    doThing: function(n) {
-      actionCounter++;
-      clickedPage = n;
-    }
-  };
-
-  s.set('targetObject',containingObject);
-  s.set('action','doThing');
-
   equal(s.get('totalPages'),3);
   Ember.run(function() {
     s.send('incrementPage',-1);
   });
   equal(s.get('currentPage'),1);
-  equal(actionCounter,0);
+  equal(ops.containingObject.actionCounter,0);
 });
 
 paramTest("invalid page send invalidPage component action", {content: makePagedArray([1,2,3,4,5])}, function(s,ops) {
-  var actionCounter = 0;
-  var pageEvent = null;
-  var containingObject = {
-    doThing: function(n) {
-      actionCounter++;
-      pageEvent = n;
-    }
-  };
-
-  s.set('targetObject',containingObject);
-  s.set('invalidPageAction','doThing');
-
   equal(s.get('totalPages'),3);
   Ember.run(function() {
     s.get('content').set('page',99);
   });
-  equal(pageEvent.page,99);
-  equal(actionCounter,1);
+  equal(ops.containingObject.invalidPageEvent.page,99);
+  equal(ops.containingObject.actionCounter,1);
 });

@@ -3,8 +3,8 @@ import Util from 'ember-cli-pagination/util';
 import PageItems from 'ember-cli-pagination/lib/page-items';
 
 export default Ember.Component.extend({
-  currentPageBinding: "content.page",
-  totalPagesBinding: "content.totalPages",
+  currentPageBinding: Ember.Binding.oneWay('content.page'),
+  totalPagesBinding: Ember.Binding.oneWay('content.totalPages'),
 
   watchInvalidPage: function() {
     var me = this;
@@ -45,7 +45,6 @@ export default Ember.Component.extend({
   actions: {
     pageClicked: function(number) {
       Util.log("PageNumbers#pageClicked number " + number);
-      //this.set("currentPage", number);
       this.sendAction('action',number);
     },
     incrementPage: function(num) {
@@ -54,9 +53,8 @@ export default Ember.Component.extend({
 
       if(currentPage === totalPages && num === 1) { return false; }
       if(currentPage <= 1 && num === -1) { return false; }
-      //this.incrementProperty('currentPage', num);
 
-      var newPage = this.get('currentPage')+1;
+      var newPage = this.get('currentPage')+num;
       this.sendAction('action',newPage);
     }
   }

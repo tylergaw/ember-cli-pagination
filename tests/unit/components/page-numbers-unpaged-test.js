@@ -7,7 +7,7 @@ var makePagedArray = function(list) {
   return PagedArray.create({content: list, perPage: 2, page: 1});
 };
 
-moduleForComponent("page-numbers-outer", "PageNumbersOuterComponent", {
+moduleForComponent("page-numbers-unpaged", "PageNumbersUnpagedComponent", {
   needs: ["component:page-numbers-inner"]
 });
 
@@ -42,10 +42,10 @@ var makeContainingObject = function(subject) {
   return containingObject;
 };
 
-paramTest("smoke", {content: makePagedArray([1,2,3,4,5])}, function(outer,ops) {
+paramTest("smoke", {content: [1,2,3,4,5], perPage: 2}, function(outer,ops) {
   var containingObject = makeContainingObject(outer);
 
-  var inner = PageNumbersInnerComponent.create({content: ops.content});
+  var inner = PageNumbersInnerComponent.create({content: outer.get('pagedContent')});
   inner.set('targetObject',outer);
   inner.set('action','pageClicked');
 
@@ -54,13 +54,7 @@ paramTest("smoke", {content: makePagedArray([1,2,3,4,5])}, function(outer,ops) {
     inner.send('pageClicked',2);
   });
 
-  equal(ops.content.get('page'),2);
+  equal(outer.get('pagedContent.page'),2);
   equal(containingObject.actionCounter,1);
   equal(containingObject.clickedPage,2);
 });
-
-// setup an inner
-// sets its action and parent to an outer
-// set the same content on the inner and the outer
-// trigger a pageClicked event on inner
-// confirm page changes on content

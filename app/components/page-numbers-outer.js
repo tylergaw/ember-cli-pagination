@@ -4,6 +4,7 @@ export default Ember.Component.extend({
   actions: {
     pageClicked: function(page) {
       this.get('content').set('page',page);
+      this.sendAction('action',page);
     }
   }
 });
