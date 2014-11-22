@@ -1,10 +1,14 @@
-{{#paginated-array content=content pageBinding="page"}}
-  <div class="todo">
-    <span>{{name}}</span>
-    <span>
-      {{input type="checkbox" checked=completed}}
-    </span>
-  </div>
+{{#paginated-array content=content page=page parent=this}}
+  {{#each num in pagedContent}}
+    {{#if parent.showRow}}
+      <div class="todo">
+        <span>{{name}}</span>
+        <span>
+          {{input type="checkbox" checked=completed}}
+        </span>
+      </div>
+    {{/if}}
+  {{/each}}
 {{/paginated-array}}
 
 <button {{action "save"}}>Save</button>

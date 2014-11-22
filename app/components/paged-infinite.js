@@ -27,12 +27,21 @@ export default Ember.Component.extend(YieldLocalMixin, {
   page: 1,
   perPage: 10,
 
-  pagedContent: pagedArray('content', {perPageBinding: "perPage", pageBinding: "page"}),
+  pagedContent: pagedArray('content', {infinite: "unpaged"}),
+
+  watchPage: function() {
+    console.log("page "+this.get('page'));
+  }.observes("page"),
 
   actions: {
-    pageClicked: function(page) {
-      this.set("pagedContent.page",page);
-      this.sendAction('action',page);
+    // pageClicked: function(page) {
+    //   this.set("pagedContent.page",page);
+    //   this.sendAction('action',page);
+    // }
+
+    loadNext: function() {
+      this.get('pagedContent').loadNextPage();
+      this.sendAction('action');
     }
   }
 });

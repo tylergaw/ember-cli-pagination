@@ -46,7 +46,7 @@ var InfiniteBase = Ember.ArrayProxy.extend({
 
   init: function() {
     this.set('content',[]);
-    this.addRecordsForPage(1);
+    this.addRecordsForPage(this.get('page'));
   },
 
   loadNextPage: function() {

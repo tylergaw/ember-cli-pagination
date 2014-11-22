@@ -7,7 +7,7 @@ export default Ember.Route.extend({
   },
 
   actions: {
-    unusedpageClicked: function(page) {
+    pageClicked: function(page) {
       this.set("controller.pagedContent.page",page);
     }
   }

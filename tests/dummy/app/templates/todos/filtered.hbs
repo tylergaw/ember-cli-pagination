@@ -1,0 +1,18 @@
+<div class="filter-min">
+  {{input type="text" value=minNum}}
+</div>
+
+{{#paginated-array content=filteredContent page=page parent=this}}
+  {{#each num in pagedContent}}
+    <div class="todo">
+      <span>{{name}}</span>
+      <span>
+        {{input type="checkbox" checked=completed}}
+      </span>
+    </div>
+  {{/each}}
+{{/paginated-array}}
+
+<button {{action "save"}}>Save</button>
+
+{{outlet}}

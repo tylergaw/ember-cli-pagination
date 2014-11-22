@@ -8,15 +8,15 @@ var server = null;
 
 
 
-var todosTestLocal = function(name, f) {
+var todosTestLocal = function(name, f, page) {
   test(name, function() {
-    visit("/todos/infinite").then(f);
+    visit("/todos/infinite" + (page ? "?"+page : "")).then(f);
   });
 };
 
-var todosTestRemote = function(name, f) {
+var todosTestRemote = function(name, f, page) {
   test(name, function() {
-    visit("/todos/infinite-remote").then(f);
+    visit("/todos/infinite-remote" + (page ? "?"+page : "")).then(f);
   });
 };
 
@@ -34,9 +34,17 @@ var runTests = function(todosTest) {
       setTimeout(function() {
         equal(find('.infinite .todo').length,20);
         QUnit.start();
-      },50);
+      },5);
     });
   });
+
+  // todosTest("query param", function() {
+  //   QUnit.stop();
+  //   setTimeout(function() {
+  //     hasTodos(3);
+  //     QUnit.start();
+  //   },50);
+  // },4);
 };
 
 module('Integration - Infinite Pagination Local', {

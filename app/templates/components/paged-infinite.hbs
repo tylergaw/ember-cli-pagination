@@ -1,0 +1,15 @@
+<div class="infinite">
+  {{#if rowMode}}
+    {{#each obj in pagedContent}}
+      {{#with obj}}
+        {{yield}}
+      {{/with}}
+    {{/each}}
+  {{else}}
+    {{yield}}
+  {{/if}}
+
+  <div class="next">
+    <a href="#" {{action "loadNext"}}>Next</a>
+  </div>
+</div>

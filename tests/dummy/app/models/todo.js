@@ -8,7 +8,7 @@ var Todo = DS.Model.extend({
 var makeFixtures = function() {
   var res = [];
 
-  var nextId = 0;
+  var nextId = 1;
   for (var i=0;i<11;i++) {
     res.push({id: nextId++, name: "Clean Gutters "+i, completed: false});
     res.push({id: nextId++, name: "Make Dinner "+i, completed: true});
