@@ -244,6 +244,22 @@ test("paramsForBackend - test what gets sent to MockStore", function() {
   deepEqual(findArgs[1].params,{page: 1, per_page: 2, name: "Bill"});
 });
 
+test('updating when other param changes as query param', function() {
+  var store = MockStore.create();
+  var paged = PagedRemoteArray.create({store: store, modelName: 'number', page: 1, perPage: 2, name: 'Adam'});
+  equal(store.get('findArgs').length,1);
+
+  var controller = Ember.Object.extend({
+    watchName: function() {
+      this.get('model').setOtherParam('name',this.get('name'));
+    }.observes('name')
+  }).create({model: paged});
+
+  controller.set('name','Bill');
+  equal(store.get('findArgs').length,2);
+  equal(store.get('findArgs')[1].params.name,'Bill');
+});
+
 //not necessary at this time
 // test("bind on a plain hash", function() {
 //   var inner = Ember.Object.create({
