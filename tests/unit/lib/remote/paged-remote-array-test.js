@@ -211,8 +211,58 @@ test("paramsForBackend with param mapping", function() {
   deepEqual(res,{currentPage: 1, per_page: 2});
 });
 
+test("paramsForBackend with otherParams that change", function() {
+  var store = MockStore.create();
+  var paged = PagedRemoteArray.create({store: store, modelName: 'number', page: 1, perPage: 2, otherParams: {name: "Adam"}});
+  var res = paged.get('paramsForBackend');
+  deepEqual(res,{page: 1, per_page: 2, name: "Adam"});
 
+  paged.setOtherParam('name','Bill');
+  res = paged.get('paramsForBackend');
+  deepEqual(res,{page: 1, per_page: 2, name: "Bill"});
+});
 
+test("paramsForBackend - test what gets sent to MockStore", function() {
+  var store = MockStore.create();
+  var paged = PagedRemoteArray.create({store: store, modelName: 'number', page: 1, perPage: 2});
+  
+  var findArgs = store.get('findArgs');
+  equal(findArgs.length,1);
+  deepEqual(findArgs[0].params,{page: 1, per_page: 2});
+});
+
+test("paramsForBackend - test what gets sent to MockStore", function() {
+  var store = MockStore.create();
+  var paged = PagedRemoteArray.create({store: store, modelName: 'number', page: 1, perPage: 2, name: 'Adam'});
+  
+  var findArgs = store.get('findArgs');
+  equal(findArgs.length,1);
+  
+  paged.setOtherParam('name','Bill');
+  findArgs = store.get('findArgs');
+  equal(findArgs.length,2);
+  deepEqual(findArgs[1].params,{page: 1, per_page: 2, name: "Bill"});
+});
+
+//not necessary at this time
+// test("bind on a plain hash", function() {
+//   var inner = Ember.Object.create({
+//     params: {name: "Adam"}
+//   });
+
+//   var outer = Ember.Object.extend({
+//     nameBinding: "inner.params.name",
+//     name: 'Adam'
+//   }).create({inner: inner});
+
+//   equal(outer.get('name'),'Adam');
+//   equal(inner.get('params.name'),'Adam');
+
+//   Ember.run(function() {
+//     outer.set('name','Bill');
+//   });
+//   equal(inner.get('params.name'),'Bill');
+// });
 
 asyncTest("basic meta", function() {
   var store = FakeStore.create({all: [1,2,3,4,5]});

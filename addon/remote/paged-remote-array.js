@@ -49,7 +49,15 @@ export default Ember.ArrayProxy.extend(Ember.Evented, ArrayProxyPromiseMixin, {
     }
 
     return ops;
-  }.property('page','perPage','paramMapping'),
+  }.property('page','perPage','paramMapping','otherParams','otherParamTempCounter'),
+
+  setOtherParam: function(k,v) {
+    var res = this.get('otherParams') || {};
+    res[k] = v;
+    this.set('otherParams',res);
+    this.incrementProperty('otherParamTempCounter');
+    this.pageChanged();
+  },
 
   fetchContent: function() {
     var store = this.get('store');
