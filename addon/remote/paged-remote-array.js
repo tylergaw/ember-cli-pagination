@@ -1,4 +1,5 @@
 import Ember from 'ember';
+import DS from 'ember-data';
 import Util from 'ember-cli-pagination/util';
 import LockToRange from 'ember-cli-pagination/watch/lock-to-range';
 
@@ -51,12 +52,39 @@ export default Ember.ArrayProxy.extend(Ember.Evented, ArrayProxyPromiseMixin, {
     return ops;
   }.property('page','perPage','paramMapping'),
 
+  getJSON: function(url, params, type, modelPath) {
+    return new Ember.RSVP.Promise(function(resolve, reject) {
+      Ember.$.ajax({url: url, data: params, type: type}).then(function(data) {
+        resolve(data[modelPath]);
+      }, function(error) {
+        reject(error);
+      });
+    });
+  },
+
   fetchContent: function() {
     var store = this.get('store');
     var modelName = this.get('modelName');
-
+    var parentRecordType = this.get('parentRecordType');
+    var parentRecordId = this.get('parentRecordId');
     var ops = this.get('paramsForBackend');
-    var res = store.find(modelName, ops);
+    var res;
+    var url;
+    var modelPath;
+
+    if( Ember.isEmpty(parentRecordType) || Ember.isEmpty(parentRecordId) )
+    {
+        res = store.find(modelName, ops);
+    }
+    else
+    {
+      modelPath = store.adapterFor(parentRecordType).pathForType(modelName);
+      url = store.adapterFor(parentRecordType).buildURL(parentRecordType, parentRecordId) + '/' + modelPath;
+      var promiseArray = DS.PromiseArray.create({
+          promise: this.getJSON(url, ops, 'GET', modelPath)
+      });
+      res = promiseArray;
+    }
     this.incrementProperty("numRemoteCalls");
     var me = this;
 
