@@ -1,6 +1,8 @@
 import Ember from 'ember';
 import Util from 'ember-cli-pagination/util';
 import LockToRange from 'ember-cli-pagination/watch/lock-to-range';
+import Mapping from './mapping';
+import PageMixin from '../page-mixin';
 
 var ArrayProxyPromiseMixin = Ember.Mixin.create(Ember.PromiseProxyMixin, {
   then: function(success,failure) {
@@ -10,116 +12,6 @@ var ArrayProxyPromiseMixin = Ember.Mixin.create(Ember.PromiseProxyMixin, {
     promise.then(function() {
       success(me);
     }, failure);
-  }
-});
-
-var QueryParamsForBackend = Ember.Object.extend({
-  defaultKeyFor: function(key) {
-    if (key === 'perPage') {
-      return 'per_page';
-    }
-    return null;
-  },
-
-  paramKeyFor: function(key) {
-    return this.getSuppliedParamMapping(key) || this.defaultKeyFor(key) || key;
-  },
-
-  getSuppliedParamMapping: function(key) {
-    var h = this.get('paramMapping') || {};
-    return h[key];
-  },
-
-  accumParams: function(key,accum) {
-    var val = this.get(key);
-    var mappedKey = this.paramKeyFor(key);
-
-    if (Array.isArray(mappedKey)) {
-      this.accumParamsComplex(key,mappedKey,accum);
-    }
-    else {
-      accum[mappedKey] = val;
-    }
-  },
-
-  accumParamsComplex: function(key,mapArr,accum) {
-    var mappedKey = mapArr[0];
-    var mapFunc = mapArr[1];
-
-    var val = mapFunc({page: this.get('page'), perPage: this.get('perPage')});
-    accum[mappedKey] = val;
-  },
-
-  make: function() {
-    var res = {};
-
-    this.accumParams('page',res);
-    this.accumParams('perPage',res);
-
-    return res;
-  }
-});
-
-var PageMixin = Ember.Mixin.create({
-  getPage: function() {
-    return parseInt(this.get('page') || 1);
-  },
-
-  getPerPage: function() {
-    return parseInt(this.get('perPage'));
-  }
-});
-
-var ChangeMeta = Ember.Object.extend({
-  getSuppliedParamMapping: function(targetVal) {
-    var h = this.get('paramMapping') || {};
-    // return Util.getHashKeyForValue(h,function(v) {
-    //   return v === val || (Array.isArray(v) && v[0] === val);
-    // });
-
-    for (var key in h) {
-      var val = h[key];
-      if (targetVal === val) {
-        return key;
-      }
-      else if (Array.isArray(val) && val[0] === targetVal) {
-        return [key,val[1]];
-      }
-    }
-
-    return null;
-  },
-
-  finalKeyFor: function(key) {
-    return this.getSuppliedParamMapping(key) || key;
-  },
-
-  makeSingleComplex: function(key,mapArr,rawVal,accum) {
-    var mappedKey = mapArr[0];
-    var mapFunc = mapArr[1];
-
-    var ops = {rawVal: rawVal, page: this.get('page'), perPage: this.get('perPage')};
-    var mappedVal = mapFunc(ops);
-    accum[mappedKey] = mappedVal;
-  },
-
-  make: function() {
-    var res = {};
-    var meta = this.get('meta');
-
-    for (var key in meta) {
-      var mappedKey = this.finalKeyFor(key);
-      var val = meta[key];
-
-      if (Array.isArray(mappedKey)) {
-        this.makeSingleComplex(key,mappedKey,val,res);
-      }
-      else {
-        res[mappedKey] = val;
-      }
-    }
-
-    return res;
   }
 });
 
@@ -147,9 +39,9 @@ export default Ember.ArrayProxy.extend(PageMixin, Ember.Evented, ArrayProxyPromi
   },
 
   paramsForBackend: function() {
-    var paramsObj = QueryParamsForBackend.create({page: this.getPage(), 
-                                                  perPage: this.getPerPage(), 
-                                                  paramMapping: this.get('paramMapping')});
+    var paramsObj = Mapping.QueryParamsForBackend.create({page: this.getPage(), 
+                                                          perPage: this.getPerPage(), 
+                                                          paramMapping: this.get('paramMapping')});
     var ops = paramsObj.make();
 
     // take the otherParams hash and add the values at the same level as page/perPage
@@ -174,10 +66,10 @@ export default Ember.ArrayProxy.extend(PageMixin, Ember.Evented, ArrayProxyPromi
     var me = this;
 
     res.then(function(rows) {
-      var metaObj = ChangeMeta.create({paramMapping: me.get('paramMapping'),
-                                       meta: rows.meta,
-                                       page: me.getPage(),
-                                       perPage: me.getPerPage()});
+      var metaObj = Mapping.ChangeMeta.create({paramMapping: me.get('paramMapping'),
+                                               meta: rows.meta,
+                                               page: me.getPage(),
+                                               perPage: me.getPerPage()});
 
       return me.set("meta", metaObj.make());
     }, function(error) {
