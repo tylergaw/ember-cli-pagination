@@ -206,7 +206,9 @@ test("paramsForBackend with otherParams", function() {
 test("paramsForBackend with param mapping", function() {
   var store = MockStore.create();
   var paged = PagedRemoteArray.create({store: store, modelName: 'number', page: 1, perPage: 2});
-  paged.set('paramMapping', {page: "currentPage"});
+  
+  //paged.set('paramMapping', {page: "currentPage"});
+  paged.addQueryParamMapping('page','currentPage');
   var res = paged.get('paramsForBackend');
   deepEqual(res,{currentPage: 1, per_page: 2});
 });
