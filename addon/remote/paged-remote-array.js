@@ -38,6 +38,14 @@ export default Ember.ArrayProxy.extend(PageMixin, Ember.Evented, ArrayProxyPromi
     this.pageChanged();
   },
 
+  addQueryParamMapping: function(key,mappedKey,mappingFunc) {
+    return this.addParamMapping(key,mappedKey,mappingFunc);
+  },
+
+  addMetaResponseMapping: function(key,mappedKey,mappingFunc) {
+    return this.addParamMapping(key,mappedKey,mappingFunc);
+  },
+
   paramsForBackend: function() {
     var paramsObj = Mapping.QueryParamsForBackend.create({page: this.getPage(), 
                                                           perPage: this.getPerPage(), 
