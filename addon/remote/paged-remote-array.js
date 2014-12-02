@@ -2,6 +2,7 @@ import Ember from 'ember';
 import DS from 'ember-data';
 import Util from 'ember-cli-pagination/util';
 import LockToRange from 'ember-cli-pagination/watch/lock-to-range';
+import EmberDataHelpersMixin from 'ember-cli-pagination/ember-data-helpers';
 
 var ArrayProxyPromiseMixin = Ember.Mixin.create(Ember.PromiseProxyMixin, {
   then: function(success,failure) {
@@ -14,7 +15,7 @@ var ArrayProxyPromiseMixin = Ember.Mixin.create(Ember.PromiseProxyMixin, {
   }
 });
 
-export default Ember.ArrayProxy.extend(Ember.Evented, ArrayProxyPromiseMixin, {
+export default Ember.ArrayProxy.extend(Ember.Evented, ArrayProxyPromiseMixin, EmberDataHelpersMixin, {
   page: 1,
   paramMapping: {},
 
@@ -52,15 +53,6 @@ export default Ember.ArrayProxy.extend(Ember.Evented, ArrayProxyPromiseMixin, {
     return ops;
   }.property('page','perPage','paramMapping'),
 
-  getJSON: function(url, params, type, modelPath) {
-    return new Ember.RSVP.Promise(function(resolve, reject) {
-      Ember.$.ajax({url: url, data: params, type: type}).then(function(data) {
-        resolve(data[modelPath]);
-      }, function(error) {
-        reject(error);
-      });
-    });
-  },
 
   fetchContent: function() {
     var store = this.get('store');
@@ -71,6 +63,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, ArrayProxyPromiseMixin, {
     var res;
     var url;
     var modelPath;
+    var IHPromise;
 
     if( Ember.isEmpty(parentRecordType) || Ember.isEmpty(parentRecordId) )
     {
@@ -78,10 +71,19 @@ export default Ember.ArrayProxy.extend(Ember.Evented, ArrayProxyPromiseMixin, {
     }
     else
     {
+      var type = store.modelFor(modelName);
+      var adapter = store.adapterFor(modelName);
+      var recordArray = store.recordArrayManager.createAdapterPopulatedRecordArray(type, ops);
+      var serializer = this.IHSerializerForAdapter(adapter, type);
+      var label = "DS: Handle Adapter#findQuery of " + type;
       modelPath = store.adapterFor(parentRecordType).pathForType(modelName);
       url = store.adapterFor(parentRecordType).buildURL(parentRecordType, parentRecordId) + '/' + modelPath;
+      IHPromise = this.IHGetJSON(adapter, url, 'GET', ops);
+      IHPromise = Ember.RSVP.Promise.cast(IHPromise, label);
+      IHPromise = this._IHGuard(IHPromise, this._IHBind(this._IHObjectIsAlive, store));
+      IHPromise = this.IHReturnPromise(IHPromise, serializer, type, recordArray);
       var promiseArray = DS.PromiseArray.create({
-          promise: this.getJSON(url, ops, 'GET', modelPath)
+          promise: Ember.RSVP.Promise.resolve(IHPromise, label)
       });
       res = promiseArray;
     }
