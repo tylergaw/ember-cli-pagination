@@ -75,7 +75,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, ArrayProxyPromiseMixin, Em
       var adapter = store.adapterFor(modelName);
       var recordArray = store.recordArrayManager.createAdapterPopulatedRecordArray(type, ops);
       var serializer = this.IHSerializerForAdapter(adapter, type);
-      var label = "DS: Handle Adapter#findQuery of " + type;
+      var label = "DS: PagedRemoteArray Query on hasManyLinks for" + type;
       modelPath = store.adapterFor(parentRecordType).pathForType(modelName);
       url = store.adapterFor(parentRecordType).buildURL(parentRecordType, parentRecordId) + '/' + modelPath;
       IHPromise = this.IHGetJSON(adapter, url, 'GET', ops);
