@@ -7,7 +7,7 @@ export default Ember.Component.extend({
   totalPagesBinding: "content.totalPages",
 
   isVisible: function () {
-    return this.get('totalPages') !== 0;
+    return this.get('totalPages') > 1;
   }.property('totalPages'),
 
   watchInvalidPage: function() {
