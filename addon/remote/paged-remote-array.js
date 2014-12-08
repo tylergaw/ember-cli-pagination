@@ -1,7 +1,9 @@
 import Ember from 'ember';
-import DS from 'ember-data';
 import Util from 'ember-cli-pagination/util';
 import LockToRange from 'ember-cli-pagination/watch/lock-to-range';
+import Mapping from './mapping';
+import PageMixin from '../page-mixin';
+import DS from 'ember-data';
 import EmberDataHelpersMixin from 'ember-cli-pagination/ember-data-helpers';
 
 var ArrayProxyPromiseMixin = Ember.Mixin.create(Ember.PromiseProxyMixin, {
@@ -15,46 +17,60 @@ var ArrayProxyPromiseMixin = Ember.Mixin.create(Ember.PromiseProxyMixin, {
   }
 });
 
-export default Ember.ArrayProxy.extend(Ember.Evented, ArrayProxyPromiseMixin, EmberDataHelpersMixin, {
+export default Ember.ArrayProxy.extend(PageMixin, Ember.Evented, ArrayProxyPromiseMixin, EmberDataHelpersMixin, {
   page: 1,
-  paramMapping: {},
+  paramMapping: function() {
+    return {};
+  }.property(''),
 
   init: function() {
-    this.set('promise', this.fetchContent());
+    var initCallback = this.get('initCallback');
+    if (initCallback) {
+      initCallback(this);
+    }
+
+    try {
+      this.get('promise');
+    }
+    catch (e) {
+      this.set('promise', this.fetchContent());
+    }
+  },
+
+  addParamMapping: function(key,mappedKey,mappingFunc) {
+    var paramMapping = this.get('paramMapping') || {};
+    if (mappingFunc) {
+      paramMapping[key] = [mappedKey,mappingFunc];
+    }
+    else {
+      paramMapping[key] = mappedKey;
+    }
+    this.set('paramMapping',paramMapping);
+    this.incrementProperty('paramsForBackendCounter');
+      //this.pageChanged();
+  },
+
+  addQueryParamMapping: function(key,mappedKey,mappingFunc) {
+    return this.addParamMapping(key,mappedKey,mappingFunc);
+  },
+  addMetaResponseMapping: function(key,mappedKey,mappingFunc) {
+    return this.addParamMapping(key,mappedKey,mappingFunc);
   },
 
   paramsForBackend: function() {
-    var page = parseInt(this.get('page') || 1);
-    var perPage = parseInt(this.get('perPage'));
-    //var store = this.get('store');
-    //var modelName = this.get('modelName');
-
-    var ops = {};
-
-    var me = this;
-    function setOp(key,val,defaultKey) {
-      if (val) {
-        key = me.get('paramMapping')[key] || defaultKey || key;
-        ops[key] = val;
-      }
-    }
-    
-    setOp("page",page);
-    setOp("perPage",perPage,"per_page");
+    var paramsObj = Mapping.QueryParamsForBackend.create({page: this.getPage(),
+      perPage: this.getPerPage(),
+      paramMapping: this.get('paramMapping')
+    });
+    var ops = paramsObj.make();
 
     // take the otherParams hash and add the values at the same level as page/perPage
-    var otherOps = this.get('otherParams') || {};
-    for (var key in otherOps) {
-      Util.log("otherOps key " + key);
-      var val = otherOps[key];
-      ops[key] = val;
-    }
+    ops = Util.mergeHashes(ops,this.get('otherParams')||{});
 
     return ops;
-  }.property('page','perPage','paramMapping'),
+  }.property('page','perPage','paramMapping','paramsForBackendCounter'),
 
-
-  fetchContent: function() {
+  rawFindFromStore: function() {
     var store = this.get('store');
     var modelName = this.get('modelName');
     var parentRecordType = this.get('parentRecordType');
@@ -65,44 +81,42 @@ export default Ember.ArrayProxy.extend(Ember.Evented, ArrayProxyPromiseMixin, Em
     var modelPath;
     var IHPromise;
 
-    if( Ember.isEmpty(parentRecordType) || Ember.isEmpty(parentRecordId) )
-    {
+    if( Ember.isEmpty(parentRecordType) || Ember.isEmpty(parentRecordId) ) {
         res = store.find(modelName, ops);
     }
-    else
-    {
-      var type = store.modelFor(modelName);
-      var adapter = store.adapterFor(modelName);
-      var recordArray = store.recordArrayManager.createAdapterPopulatedRecordArray(type, ops);
-      var serializer = this.IHSerializerForAdapter(adapter, type);
-      var label = "DS: PagedRemoteArray Query on hasManyLinks for" + type;
-      modelPath = store.adapterFor(parentRecordType).pathForType(modelName);
-      url = store.adapterFor(parentRecordType).buildURL(parentRecordType, parentRecordId) + '/' + modelPath;
-      IHPromise = this.IHGetJSON(adapter, url, 'GET', ops);
-      IHPromise = Ember.RSVP.Promise.cast(IHPromise, label);
-      IHPromise = this._IHGuard(IHPromise, this._IHBind(this._IHObjectIsAlive, store));
-      IHPromise = this.IHReturnPromise(IHPromise, serializer, type, recordArray);
-      var promiseArray = DS.PromiseArray.create({
+    else {
+        var type = store.modelFor(modelName);
+        var adapter = store.adapterFor(modelName);
+        var recordArray = store.recordArrayManager.createAdapterPopulatedRecordArray(type, ops);
+        var serializer = this.IHSerializerForAdapter(adapter, type);
+        var label = "DS: PagedRemoteArray Query on hasManyLinks for" + type;
+        modelPath = store.adapterFor(parentRecordType).pathForType(modelName);
+        url = store.adapterFor(parentRecordType).buildURL(parentRecordType, parentRecordId) + '/' + modelPath;
+        IHPromise = this.IHGetJSON(adapter, url, 'GET', ops);
+        IHPromise = Ember.RSVP.Promise.cast(IHPromise, label);
+        IHPromise = this._IHGuard(IHPromise, this._IHBind(this._IHObjectIsAlive, store));
+        IHPromise = this.IHReturnPromise(IHPromise, serializer, type, recordArray);
+        var promiseArray = DS.PromiseArray.create({
           promise: Ember.RSVP.Promise.resolve(IHPromise, label)
-      });
-      res = promiseArray;
-    }
+        });
+        res = promiseArray;
+    }    
+    return res;
+  },
+    
+  fetchContent: function() {
+    var res = this.rawFindFromStore();
     this.incrementProperty("numRemoteCalls");
     var me = this;
 
     res.then(function(rows) {
-      Util.log("PagedRemoteArray#fetchContent in res.then " + rows);
-      var newMeta = {};
-      var totalPagesField = me.get('paramMapping').total_pages;
-      if (rows.meta) {
-        for (var k in rows.meta) { 
-          newMeta[k] = rows.meta[k]; 
-          if (totalPagesField && totalPagesField === k) {
-            newMeta['total_pages'] = rows.meta[k];
-          }
-        }      
-      }
-      return me.set("meta", newMeta);
+      var metaObj = Mapping.ChangeMeta.create({paramMapping: me.get('paramMapping'),
+                                               meta: rows.meta,
+                                               page: me.getPage(),
+                                               perPage: me.getPerPage()});
+
+      return me.set("meta", metaObj.make());
+      
     }, function(error) {
       Util.log("PagedRemoteArray#fetchContent error " + error);
     });

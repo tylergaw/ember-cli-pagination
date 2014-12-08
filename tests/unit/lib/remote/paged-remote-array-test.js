@@ -206,11 +206,20 @@ test("paramsForBackend with otherParams", function() {
 test("paramsForBackend with param mapping", function() {
   var store = MockStore.create();
   var paged = PagedRemoteArray.create({store: store, modelName: 'number', page: 1, perPage: 2});
-  paged.set('paramMapping', {page: "currentPage"});
+  
+  //paged.set('paramMapping', {page: "currentPage"});
+  paged.addQueryParamMapping('page','currentPage');
   var res = paged.get('paramsForBackend');
   deepEqual(res,{currentPage: 1, per_page: 2});
 });
 
+test("paramsForBackend with param mapping and function", function() {
+  var store = MockStore.create();
+  var paged = PagedRemoteArray.create({store: store, modelName: 'number', page: 1, perPage: 2});
+  paged.addQueryParamMapping('page','currentPage',function(ops) { return ops.perPage + ops.page; });
+  var res = paged.get('paramsForBackend');
+  deepEqual(res, {currentPage: 3, per_page: 2});
+});
 
 
 
@@ -233,6 +242,18 @@ asyncTest("meta with num_pages", function() {
   paged.then(function() {
     var meta = paged.get('meta');
     equal(meta.total_pages,3);
+    QUnit.start();
+  });
+});
+
+asyncTest("meta with num_pages and function", function() {
+  var store = FakeStore.create({all: [1,2,3,4,5], totalPagesField: 'num_pages'});
+  var paged = PagedRemoteArray.create({store: store, modelName: 'number', page: 1, perPage: 2});
+  paged.addMetaResponseMapping('total_pages','num_pages',function(ops) { return ops.rawVal + ops.page + ops.perPage; });
+
+  paged.then(function() {
+    var meta = paged.get('meta');
+    equal(meta.total_pages,6);
     QUnit.start();
   });
 });
