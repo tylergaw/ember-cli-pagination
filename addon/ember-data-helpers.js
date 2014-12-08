@@ -4,8 +4,6 @@ import DS from 'ember-data';
 export default Ember.Mixin.create({
 
 IHAjax: function(adapter, url, type, options) {
-        var adapter = adapter;
-
         return new Ember.RSVP.Promise(function(resolve, reject) {
           var hash = adapter.ajaxOptions(url, type, options);
 
@@ -18,7 +16,7 @@ IHAjax: function(adapter, url, type, options) {
             }
           };
 
-          hash.error = function(jqXHR, textStatus, errorThrown) {
+          hash.error = function(jqXHR) {
             Ember.run(null, reject, adapter.ajaxError(jqXHR, jqXHR.responseText));
           };
 
@@ -78,7 +76,7 @@ IHGetJSON: function(adapter, url, type, query) {
         return this.IHAjax(adapter, url, type, { data: query });
 },
 
-IHReturnPromise: function(promise, serializer, type, recordArray) {
+IHReturnPromise: function(promise, serializer, type, recordArray, store) {
   return promise.then(function(adapterPayload) {
         var payload = serializer.extract(store, type, adapterPayload, null, 'findQuery');
 

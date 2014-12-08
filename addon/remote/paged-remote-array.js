@@ -95,7 +95,7 @@ export default Ember.ArrayProxy.extend(PageMixin, Ember.Evented, ArrayProxyPromi
         IHPromise = this.IHGetJSON(adapter, url, 'GET', ops);
         IHPromise = Ember.RSVP.Promise.cast(IHPromise, label);
         IHPromise = this._IHGuard(IHPromise, this._IHBind(this._IHObjectIsAlive, store));
-        IHPromise = this.IHReturnPromise(IHPromise, serializer, type, recordArray);
+        IHPromise = this.IHReturnPromise(IHPromise, serializer, type, recordArray, store);
         var promiseArray = DS.PromiseArray.create({
           promise: Ember.RSVP.Promise.resolve(IHPromise, label)
         });
