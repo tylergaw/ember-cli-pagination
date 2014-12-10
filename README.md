@@ -8,18 +8,23 @@ Simple pagination addon for your Ember CLI app.
 
 Features: 
 
- - Default pagination template - but you can write your own
- - Current page bound to the `page` query param
- - Compatible with the Kaminari API Rails gem
+- Supports multiple types of pagination:
+  - Local
+  - Remote
+  - Infinite
+- Default pagination template - but you can write your own
+- Current page bound to the `page` query param
+- Compatible with the Kaminari API Rails gem
+
 
 **Questions?**
 
-This is a new project, but several people are already using it successfully. If you have any trouble, open an issue, and you should get help quickly.
+This is a new project, but many people are already using it successfully. If you have any trouble, open an issue, and you should get help quickly.
 
 ## Requirements
 
-- ember-cli 0.0.39 or higher
-- ember-cli-pagination 0.3.0 or higher (to match current docs)
+- ember-cli 0.0.46 or higher (untested with earlier versions, but it might work)
+- ember-cli-pagination 0.6.0 or higher (to match current docs)
 
 ## Installation
 
@@ -37,6 +42,8 @@ npm install ember-cli-pagination --save-dev
 * [Remote Paginated API](#remote-paginated-api)
 * [Remote Unpaginated API](#remote-unpaginated-api)
 * [Paginating a Filtered List](#paginating-a-filtered-list)
+* [Infinite Pagination with All Records Present Locally](#infinite-pagination-with-all-records-present-locally)
+* [Infinite Pagination with a Remote Paginated API](#infinite-pagination-with-a-remote-paginated-api)
 
 #### Primitives
 
@@ -263,6 +270,72 @@ If you don't want to have query params, you may leave them out, along with the 3
 
 * There is no need to touch the route in this scenario.
 
+--------------
+
+## Infinite Pagination with All Records Present Locally
+
+The infinite pagination sections of the docs is not yet up to my preferred quality level. If you have any questions or problems, please do not hesitate to make an issue. 
+
+The example below does not use a page query param, although that is certainly possible. 
+
+Controller:
+
+```javascript
+import Ember from 'ember';
+import pagedArray from 'ember-cli-pagination/computed/paged-array';
+
+export default Ember.ArrayController.extend({
+  pagedContent: pagedArray('content', {infinite: "unpaged"}),
+
+  actions: {
+    loadNext: function() {
+      this.get('pagedContent').loadNextPage();
+    }
+  }
+});
+```
+
+`"unpaged"` in this example indicates the source array (the `content` property) is a regular (unpaged) array, as opposed to a PagedArray. 
+
+--------------
+
+## Infinite Pagination with a Remote Paginated API
+
+The example below does not use a page query param, although that is certainly possible. 
+
+```javascript
+// controller
+
+import Ember from 'ember';
+import pagedArray from 'ember-cli-pagination/computed/paged-array';
+
+export default Ember.ArrayController.extend({
+  pagedContent: pagedArray("content", {infinite: true}),
+
+  actions: {
+    loadNext: function() {
+      this.get('pagedContent').loadNextPage();
+    }
+  }
+});
+```
+
+ `{infinite: true}` in this example indicates the source array (the `content` property) is a paged array, in this case a PagedRemoteArray.
+
+```javascript
+// route
+
+import Ember from 'ember';
+import RouteMixin from 'ember-cli-pagination/remote/route-mixin';
+
+export default Ember.Route.extend(RouteMixin, {
+  model: function(params) {
+    return this.findPaged('todo',params);
+  }
+});
+```
+
+
 # Primitives
 
 ## `page-numbers` Component
@@ -330,9 +403,14 @@ You can use your own template for the pagination controls. Create it in your app
 
 See [the default template](https://github.com/mharris717/ember-cli-pagination/blob/master/app/templates/components/page-numbers.hbs) for an example.
 
+To always show the first and last pages (in addition to the pages that would be shown normally), set the showFL property
+
+```javascript
+{{page-numbers content=content showFL=true}}
+```
+
 ### Future Additions
 
-* Don't show links for every page if there are a large number of pages. 
 * <</>> links to move more than one page at a time.
 * Configuration settings to change behavior, remove arrows, etc.
 

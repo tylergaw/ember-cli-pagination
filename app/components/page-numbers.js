@@ -1,6 +1,7 @@
 import Ember from 'ember';
 import Util from 'ember-cli-pagination/util';
 import PageItems from 'ember-cli-pagination/lib/page-items';
+import Validate from 'ember-cli-pagination/validate';
 
 export default Ember.Component.extend({
   currentPageBinding: "content.page",
@@ -23,17 +24,32 @@ export default Ember.Component.extend({
   truncatePages: true,
   numPagesToShow: 10,
 
+  validate: function() {
+    if (Util.isBlank(this.get('currentPage'))) {
+      Validate.internalError("no currentPage for page-numbers");
+    }
+    if (Util.isBlank(this.get('totalPages'))) {
+      Validate.internalError('no totalPages for page-numbers');
+    }
+  },
+
   pageItemsObj: function() {
     return PageItems.create({
       parent: this,
       currentPageBinding: "parent.currentPage",
       totalPagesBinding: "parent.totalPages",
       truncatePagesBinding: "parent.truncatePages",
-      numPagesToShowBinding: "parent.numPagesToShow"
+      numPagesToShowBinding: "parent.numPagesToShow",
+      showFLBinding: "parent.showFL"
     });
   }.property(),
 
-  pageItemsBinding: "pageItemsObj.pageItems",
+  //pageItemsBinding: "pageItemsObj.pageItems",
+
+  pageItems: function() {
+    this.validate();
+    return this.get("pageItemsObj.pageItems");
+  }.property("pageItemsObj.pageItems","pageItemsObj"),
 
   canStepForward: (function() {
     var page = Number(this.get("currentPage"));
