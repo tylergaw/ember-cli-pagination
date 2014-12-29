@@ -19,6 +19,7 @@ var ArrayProxyPromiseMixin = Ember.Mixin.create(Ember.PromiseProxyMixin, {
 
 export default Ember.ArrayProxy.extend(PageMixin, Ember.Evented, ArrayProxyPromiseMixin, EmberDataHelpersMixin, {
   page: 1,
+  loading: false,
   paramMapping: function() {
     return {};
   }.property(''),
@@ -105,6 +106,7 @@ export default Ember.ArrayProxy.extend(PageMixin, Ember.Evented, ArrayProxyPromi
   },
     
   fetchContent: function() {
+    this.set('loading', true);
     var res = this.rawFindFromStore();
     this.incrementProperty("numRemoteCalls");
     var me = this;
@@ -115,9 +117,11 @@ export default Ember.ArrayProxy.extend(PageMixin, Ember.Evented, ArrayProxyPromi
                                                page: me.getPage(),
                                                perPage: me.getPerPage()});
 
+      me.set('loading', false);
       return me.set("meta", metaObj.make());
       
     }, function(error) {
+      me.set('loading', false);
       Util.log("PagedRemoteArray#fetchContent error " + error);
     });
 

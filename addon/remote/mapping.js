@@ -104,7 +104,7 @@ exports.ChangeMeta = Ember.Object.extend({
       }
     }
 
-    // this.validate(res);
+    this.validate(res);
 
     return res;
   },

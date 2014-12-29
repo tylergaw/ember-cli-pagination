@@ -47,7 +47,7 @@ export default Ember.Component.extend({
   //pageItemsBinding: "pageItemsObj.pageItems",
 
   pageItems: function() {
-    // this.validate();
+    this.validate();
     return this.get("pageItemsObj.pageItems");
   }.property("pageItemsObj.pageItems","pageItemsObj"),
 
