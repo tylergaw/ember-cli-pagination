@@ -13,7 +13,7 @@
     {{#each item in pageItems}}
       {{#if item.current}}
         <li class="active page-number">
-          <a href="#page">{{item.page}}</a>
+          {{link-to item.page}}
         </li>
       {{else}}
         <li class="page-number">
