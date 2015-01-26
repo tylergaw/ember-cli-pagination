@@ -1,7 +1,7 @@
 import Ember from 'ember';
 import Util from 'ember-cli-pagination/util';
 import LockToRange from 'ember-cli-pagination/watch/lock-to-range';
-import Mapping from './mapping';
+import { QueryParamsForBackend, ChangeMeta } from './mapping';
 import PageMixin from '../page-mixin';
 import DS from 'ember-data';
 import EmberDataHelpersMixin from 'ember-cli-pagination/ember-data-helpers';
@@ -54,15 +54,15 @@ export default Ember.ArrayProxy.extend(PageMixin, Ember.Evented, ArrayProxyPromi
   addQueryParamMapping: function(key,mappedKey,mappingFunc) {
     return this.addParamMapping(key,mappedKey,mappingFunc);
   },
+
   addMetaResponseMapping: function(key,mappedKey,mappingFunc) {
     return this.addParamMapping(key,mappedKey,mappingFunc);
   },
 
   paramsForBackend: function() {
-    var paramsObj = Mapping.QueryParamsForBackend.create({page: this.getPage(),
-      perPage: this.getPerPage(),
-      paramMapping: this.get('paramMapping')
-    });
+    var paramsObj = QueryParamsForBackend.create({page: this.getPage(),
+                                                  perPage: this.getPerPage(),
+                                                  paramMapping: this.get('paramMapping')});
     var ops = paramsObj.make();
 
     // take the otherParams hash and add the values at the same level as page/perPage
@@ -101,10 +101,10 @@ export default Ember.ArrayProxy.extend(PageMixin, Ember.Evented, ArrayProxyPromi
           promise: Ember.RSVP.Promise.resolve(IHPromise, label)
         });
         res = promiseArray;
-    }    
+    }
     return res;
   },
-    
+
   fetchContent: function() {
     this.set('loading', true);
     var res = this.rawFindFromStore();
@@ -112,21 +112,21 @@ export default Ember.ArrayProxy.extend(PageMixin, Ember.Evented, ArrayProxyPromi
     var me = this;
 
     res.then(function(rows) {
-      var metaObj = Mapping.ChangeMeta.create({paramMapping: me.get('paramMapping'),
-                                               meta: rows.meta,
-                                               page: me.getPage(),
-                                               perPage: me.getPerPage()});
+      var metaObj = ChangeMeta.create({paramMapping: me.get('paramMapping'),
+                                       meta: rows.meta,
+                                       page: me.getPage(),
+                                       perPage: me.getPerPage()});
 
       me.set('loading', false);
       return me.set("meta", metaObj.make());
-      
+
     }, function(error) {
       me.set('loading', false);
       Util.log("PagedRemoteArray#fetchContent error " + error);
     });
 
     return res;
-  },  
+  },
 
   totalPagesBinding: "meta.total_pages",
 

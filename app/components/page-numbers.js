@@ -11,6 +11,8 @@ export default Ember.Component.extend({
     return this.get('totalPages') > 1;
   }.property('totalPages'),
 
+  hasPages: Ember.computed.gt('totalPages', 1),
+
   watchInvalidPage: function() {
     var me = this;
     var c = this.get('content');
