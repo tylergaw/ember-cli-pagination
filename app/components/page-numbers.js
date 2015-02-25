@@ -24,7 +24,24 @@ export default Ember.Component.extend({
   }.observes("content"),
 
   truncatePages: true,
-  numPagesToShow: 10,
+  
+  numPagesToShow: function(){
+    var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+    if(w<=500){
+      return 5;
+    }else{
+      return 10;
+    }
+  }.property(),
+
+  adjustNumPagesToShow: function(){
+    var that = this;
+    Ember.$(window).resize(function(){
+      Ember.run(function(){
+        that.notifyPropertyChange('numPagesToShow');
+      })
+    });
+  }.on('didInsertElement'),
 
   validate: function() {
     if (Util.isBlank(this.get('currentPage'))) {
