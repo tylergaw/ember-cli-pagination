@@ -3,6 +3,8 @@ import Util from 'ember-cli-pagination/util';
 import LockToRange from 'ember-cli-pagination/watch/lock-to-range';
 import { QueryParamsForBackend, ChangeMeta } from './mapping';
 import PageMixin from '../page-mixin';
+import DS from 'ember-data';
+import EmberDataHelpersMixin from 'ember-cli-pagination/ember-data-helpers';
 
 var ArrayProxyPromiseMixin = Ember.Mixin.create(Ember.PromiseProxyMixin, {
   then: function(success,failure) {
@@ -15,8 +17,9 @@ var ArrayProxyPromiseMixin = Ember.Mixin.create(Ember.PromiseProxyMixin, {
   }
 });
 
-export default Ember.ArrayProxy.extend(PageMixin, Ember.Evented, ArrayProxyPromiseMixin, {
+export default Ember.ArrayProxy.extend(PageMixin, Ember.Evented, ArrayProxyPromiseMixin, EmberDataHelpersMixin, {
   page: 1,
+  loading: false,
   paramMapping: function() {
     return {};
   }.property(''),
@@ -45,7 +48,7 @@ export default Ember.ArrayProxy.extend(PageMixin, Ember.Evented, ArrayProxyPromi
     }
     this.set('paramMapping',paramMapping);
     this.incrementProperty('paramsForBackendCounter');
-    //this.pageChanged();
+      //this.pageChanged();
   },
 
   addQueryParamMapping: function(key,mappedKey,mappingFunc) {
@@ -57,8 +60,8 @@ export default Ember.ArrayProxy.extend(PageMixin, Ember.Evented, ArrayProxyPromi
   },
 
   paramsForBackend: function() {
-    var paramsObj = QueryParamsForBackend.create({page: this.getPage(), 
-                                                  perPage: this.getPerPage(), 
+    var paramsObj = QueryParamsForBackend.create({page: this.getPage(),
+                                                  perPage: this.getPerPage(),
                                                   paramMapping: this.get('paramMapping')});
     var ops = paramsObj.make();
 
@@ -71,14 +74,39 @@ export default Ember.ArrayProxy.extend(PageMixin, Ember.Evented, ArrayProxyPromi
   rawFindFromStore: function() {
     var store = this.get('store');
     var modelName = this.get('modelName');
-
+    var parentRecordType = this.get('parentRecordType');
+    var parentRecordId = this.get('parentRecordId');
     var ops = this.get('paramsForBackend');
-    var res = store.find(modelName, ops);
+    var res;
+    var url;
+    var modelPath;
+    var IHPromise;
 
+    if( Ember.isEmpty(parentRecordType) || Ember.isEmpty(parentRecordId) ) {
+        res = store.find(modelName, ops);
+    }
+    else {
+        var type = store.modelFor(modelName);
+        var adapter = store.adapterFor(modelName);
+        var recordArray = store.recordArrayManager.createAdapterPopulatedRecordArray(type, ops);
+        var serializer = this.IHSerializerForAdapter(adapter, type);
+        var label = "DS: PagedRemoteArray Query on hasManyLinks for" + type;
+        modelPath = store.adapterFor(parentRecordType).pathForType(modelName);
+        url = store.adapterFor(parentRecordType).buildURL(parentRecordType, parentRecordId) + '/' + modelPath;
+        IHPromise = this.IHGetJSON(adapter, url, 'GET', ops);
+        IHPromise = Ember.RSVP.Promise.cast(IHPromise, label);
+        IHPromise = this._IHGuard(IHPromise, this._IHBind(this._IHObjectIsAlive, store));
+        IHPromise = this.IHReturnPromise(IHPromise, serializer, type, recordArray, store);
+        var promiseArray = DS.PromiseArray.create({
+          promise: Ember.RSVP.Promise.resolve(IHPromise, label)
+        });
+        res = promiseArray;
+    }
     return res;
   },
 
   fetchContent: function() {
+    this.set('loading', true);
     var res = this.rawFindFromStore();
     this.incrementProperty("numRemoteCalls");
     var me = this;
@@ -89,21 +117,28 @@ export default Ember.ArrayProxy.extend(PageMixin, Ember.Evented, ArrayProxyPromi
                                        page: me.getPage(),
                                        perPage: me.getPerPage()});
 
+      me.set('loading', false);
       return me.set("meta", metaObj.make());
-      
+
     }, function(error) {
+      me.set('loading', false);
       Util.log("PagedRemoteArray#fetchContent error " + error);
     });
 
     return res;
-  },  
+  },
 
   totalPagesBinding: "meta.total_pages",
 
   totalCountBinding: "meta.total_count",
 
   pageChanged: function() {
-    this.set("promise", this.fetchContent());
+    var page = this.get('page');
+    var lastPage = this.get('lastPage');
+    if (lastPage != page) {
+      this.set('lastPage', page);
+      this.set("promise", this.fetchContent());
+    }
   }.observes("page", "perPage"),
 
   lockToRange: function() {
