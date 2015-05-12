@@ -7,6 +7,10 @@ export default Ember.Component.extend({
   currentPageBinding: "content.page",
   totalPagesBinding: "content.totalPages",
 
+  isVisible: function () {
+    return this.get('totalPages') > 1;
+  }.property('totalPages'),
+
   hasPages: Ember.computed.gt('totalPages', 1),
 
   watchInvalidPage: function() {
@@ -20,7 +24,24 @@ export default Ember.Component.extend({
   }.observes("content"),
 
   truncatePages: true,
-  numPagesToShow: 10,
+  
+  numPagesToShow: function(){
+    var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+    if(w<=500){
+      return 5;
+    }else{
+      return 10;
+    }
+  }.property(),
+
+  adjustNumPagesToShow: function(){
+    var that = this;
+    Ember.$(window).resize(function(){
+      Ember.run(function(){
+        that.notifyPropertyChange('numPagesToShow');
+      })
+    });
+  }.on('didInsertElement'),
 
   validate: function() {
     if (Util.isBlank(this.get('currentPage'))) {
